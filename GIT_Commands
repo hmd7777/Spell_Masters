@@ -1,0 +1,9 @@
+- To clone a repo: git clone URL
+- add your changes locally 
+- git add --all (add changes to stage)
+- git commit -m ""
+- git push origin main 
+
+- take latest changes: git pull origin main 
+- create a new branch: git checkout -b branch_name 
+- go to branch_a: git checkout branch_a
