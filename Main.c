@@ -86,6 +86,14 @@ void capitalizeFirstChar(char *str) {//helper for Find_Verify.
 }
 
 //if a word is found our startegy is to capitalize it so if we find it again it will be capitalized which will indicate that it was already used.
+/*
+if a word is found our startegy is to capitalize it so if we find it again it will be capitalized which will indicate that it was already used.
+case0=word found.
+case1=word found but used.
+case2=word doesnt exist.
+case3=started with wrong letter.
+case4=win(the word exists and its last letter has no remaining words in the list)
+*/
 int Find_Verify(WordsData *wordsData, char *word, char lastLetter, char requiredL){// case0=word found. case1=word found but used. case2=word doesnt exist. case3=started with wrong letter. case4=win
     char ***words = wordsData->words;
     int *word_count = wordsData->word_count;
@@ -95,10 +103,11 @@ int Find_Verify(WordsData *wordsData, char *word, char lastLetter, char required
             return 3;
         }
     }
-    if (word_count[lastLetter-'a']==0){//case 4(win)
+    /*if (word_count[lastLetter-'a']==0){//case 4(win)
 
         return 4;
     }
+    */
     for(int i=0;i<wordsData->word_count_static[firstLetter-'a'];i++){
         char *wordOfArr = words[firstLetter-'a'][i];
         //printf("%s\t",wordOfArr);
@@ -106,6 +115,9 @@ int Find_Verify(WordsData *wordsData, char *word, char lastLetter, char required
             if(isupper(wordOfArr[0])){
                  return 1;
             }//word found but is capitalized indicating it was used before
+            else if (word_count[lastLetter-'a']==0){//case 4(win)
+            return 4;
+            }
             else{
 
                 capitalizeFirstChar(words[firstLetter-'a'][i]);
