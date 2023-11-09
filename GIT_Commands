@@ -7,3 +7,9 @@
 - take latest changes: git pull origin main 
 - create a new branch: git checkout -b branch_name 
 - go to branch_a: git checkout branch_a
+
+gcc -c main.c -o main.o
+gcc -c utilities.c -o utilities.o
+gcc -c pvp.c -o pvp.o
+gcc -c pvb.c -o pvb.o
+gcc main.o utilities.o pvp.o pvb.o -o spell_master
