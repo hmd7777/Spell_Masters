@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <stdbool.h>
+#include <windows.h>
 
 #include "pvp.h"
 #include "utilities.h"
@@ -30,12 +31,12 @@ bool coinflipAndWhoStartsPvP(char *player1, char *player2){//in this function a 
         scanf("%s", choice);
         toLowerCase(choice);
     } while (strcmp(choice, "heads") != 0 && strcmp(choice, "tails") != 0);
-
+    Sleep(1000);
     // Randomly generate heads or tails
     int result = rand() % 2; // 0 for heads, 1 for tails
     const char *results[] = {"heads", "tails"};
     printf("It's %s!\n", results[result]);
-
+    Sleep(1000);
     // Check if the chosenPlayer's choice matches the result
     if (strcmp(choice, results[result]) == 0) {
         printf("%s, you won!\n", chosenPlayer);
@@ -53,12 +54,14 @@ void PlayerVsPlayer() {
 
     printf("Player 2: ");
     scanf(" %49[^\n]", player2); 
+    printf("%s and %s, \nbelow you will see all the possible words you can chose from.\n",player1,player2);
+    Sleep(3000);
     WordsData wordsData = createWordsArrayFromFile("spells.txt");//initialize the words and words_count arrays
     for (int i = 0; i < 26; i++) {
     wordsData.word_count_static[i] = wordsData.word_count[i];
 }
     printWordsData(&wordsData);//print all possible words
-    printf("Hello %s and %s!\nAbove you can see all the possible words you can chose from.\n",player1,player2);
+    
     bool p1turn = coinflipAndWhoStartsPvP(player1,player2);//initiate coin flip
     if (p1turn){
         printf("Congratz %s, you start. Now may the battle begin!\n",player1);
@@ -79,6 +82,7 @@ void PlayerVsPlayer() {
             toLowerCase(word);
         }while (!isOnlyLetters(word));
         LastLetter = word[strlen(word) - 1];
+        Sleep(1000);
         status = Find_Verify(&wordsData,  word,LastLetter, Required);
         if (status == 0) {
             printf("%s. Valid choice %s. \nNext turn:\n", word, chosenPlayer);
@@ -97,7 +101,7 @@ void PlayerVsPlayer() {
 }
         Required = LastLetter;
         p1turn=!p1turn;
-        
+        Sleep(2000);
     }
     if (status>=1 && status<=3){
         if (p1turn) printf("Congratiolations %s!!.",player2);
