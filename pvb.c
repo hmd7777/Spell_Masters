@@ -5,9 +5,11 @@
 #include <time.h>
 #include <stdbool.h>
 #include <windows.h>
-
-#include "pvb.h"
 #include "utilities.h"
+#include "pvb.h"
+#include "botLogic.h"
+
+
 bool coinflipAndWhoStartsPvB(char *player1, char *bot){//in this function a coin flip is randomly prompted top p1 or 2, and whoever wins starts the game.
  // Seed the random number generator
     srand((unsigned int)time(NULL));
@@ -26,7 +28,6 @@ bool coinflipAndWhoStartsPvB(char *player1, char *bot){//in this function a coin
     }
     char choice[10];
     printf("Now,to determine who starts.\n");
-    chosenPlayer = bot;
     do {
         printf("%s heads or tails?(case insensetive)\n",chosenPlayer);
         if (chosenPlayer == player1){
@@ -76,9 +77,9 @@ void PlayerVsBot() {
         // Check if the input is one of the valid options
         if (strcmp(bot_difficulty, "1") == 0 || strcmp(bot_difficulty, "2") == 0 || strcmp(bot_difficulty, "3") == 0) {
             validInput = 1;
-            if (strcmp(bot_difficulty, "1") == 0) strcpy(bot, "Mao Zedong");
-            if (strcmp(bot_difficulty, "2") == 0) strcpy(bot, "Joseph Stalin");
-            if (strcmp(bot_difficulty, "3") == 0) strcpy(bot, "Adolf Hitler");
+            if (strcmp(bot_difficulty, "1") == 0) strcpy(bot, "Bob");
+            if (strcmp(bot_difficulty, "2") == 0) strcpy(bot, "Hitler");
+            if (strcmp(bot_difficulty, "3") == 0) strcpy(bot, "Abu Ubaida");
 
         } else {
             printf("Invalid input. Please enter '1', '2', or '3'.\n");
@@ -107,13 +108,25 @@ void PlayerVsBot() {
     char *chosenPlayer;
     char LastLetter;
     char Required = ' ';
+    GameState gameState = createGameState(&wordsData);
+
     while(true){//start the battle
         if (p1turn) chosenPlayer = player1;
         else chosenPlayer = bot;
+
         do{
             printf("%s choose a spell(only letters): ",chosenPlayer);
+            if(!p1turn){
+                char *chosenword = chooseWordWithMinimax(&wordsData,&gameState);
+                strcpy(word, chosenword);
+                
+            
+            Sleep(1000);
+            }
+            else{
             scanf("%25s",word);
             toLowerCase(word);
+        }
         }while (!isOnlyLetters(word));
         LastLetter = word[strlen(word) - 1];
         status = Find_Verify(&wordsData,  word,LastLetter, Required);

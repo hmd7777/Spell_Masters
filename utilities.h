@@ -2,6 +2,8 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#define ALPHABET_SIZE 26
+#define MAX_WORD_LENGTH 25
 #include <stdbool.h>
 /*typedef struct {//stored together in a struct so parameter doesnt get crowded. and looks cleaner.
     char ***words;//3d array that categorizes words with their corresponding starting letters.
@@ -14,6 +16,12 @@ typedef struct {
     int word_count[26];
     int word_count_static[26];
 } WordsData;
+
+typedef struct {
+    int word_Count[ALPHABET_SIZE];                
+    int **wordsEndingIn; 
+    char lastLetterBefore;
+} GameState;
 
 //makes sure a word is only letters since the array will be out of bounds if non letters are used.
 bool isOnlyLetters(const char *str);
@@ -38,5 +46,7 @@ case3=started with wrong letter.
 case4=win(the word exists and its last letter has no remaining words in the list)
 */
 int Find_Verify(WordsData *wordsData, char *word, char lastLetter, char requiredL);
-
+int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]);
+GameState createGameState(WordsData *wordsData);
+void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
 #endif // HELPERS_H

@@ -11,4 +11,15 @@ gcc -c utilities.c -o utilities.o
 gcc -c pvp.c -o pvp.o
 gcc -c pvb.c -o pvb.o
 gcc main.o utilities.o pvp.o pvb.o -o spell_master
- ./spell_master
+./spell_master
+
+gcc -c main.c -o main.o
+gcc -c utilities.c -o utilities.o
+gcc -c pvp.c -o pvp.o
+gcc -c pvb.c -o pvb.o
+gcc -c botLogic.c -o botLogic.o
+gcc main.o utilities.o pvp.o pvb.o botLogic.o -o spell_master
+./spell_master
+
+
+for test- gcc utilities.c pvb.c botLogic.c test.c -o myprogram

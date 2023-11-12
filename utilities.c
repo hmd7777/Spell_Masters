@@ -154,3 +154,51 @@ if (sscanf(word, "%d", &numberOfWords) != 1) {
     data.words = words;
     return data;
 }
+void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]) {
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        for (int j = 0; j < ALPHABET_SIZE; j++) {
+            printf("%d ", array[i][j]);
+        }
+        printf("\n"); // New line after each row
+    }
+}
+int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]) {
+    // Dynamically allocate the wordsEndingIn array
+    int** wordsEndingIn = (int**)malloc(ALPHABET_SIZE * sizeof(int*));
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        wordsEndingIn[i] = (int*)malloc(ALPHABET_SIZE * sizeof(int));
+        for (int j = 0; j < ALPHABET_SIZE; j++) {
+            wordsEndingIn[i][j] = 0; // Initialize with 0
+        }
+    }
+
+    // Fill the wordsEndingIn array based on words and wordCount
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        for (int j = 0; j < wordCount[i]; j++) {
+            char *word = words[i][j];
+            int len = strlen(word);
+            if (len > 0) {
+                int startIdx = word[0] - 'a';
+                int endIdx = word[len - 1] - 'a';
+                if (startIdx >= 0 && startIdx < ALPHABET_SIZE && endIdx >= 0 && endIdx < ALPHABET_SIZE) {
+                    wordsEndingIn[startIdx][endIdx]++;
+                }
+            }
+        }
+    }
+    
+    return wordsEndingIn;
+}
+
+GameState createGameState(WordsData *wordsData) {
+    GameState gameState;
+
+    gameState.lastLetterBefore = ' '; // Initialize lastLetter
+    memcpy(gameState.word_Count, wordsData->word_count, sizeof(wordsData->word_count));
+
+    // Directly assign the pointer
+    gameState.wordsEndingIn = createWordsEndingInArray(wordsData->words, wordsData->word_count);
+
+
+    return gameState;
+}
