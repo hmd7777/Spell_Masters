@@ -25,9 +25,17 @@ typedef struct {
 
 //makes sure a word is only letters since the array will be out of bounds if non letters are used.
 bool isOnlyLetters(const char *str);
+requires: str is a pointer to a null-terminated string.
+effects: Checks if the string str contains only alphabetical letters. Returns true if only letters are found, otherwise returns false.
 void toLowerCase(char *str);//string to lowers case
+requires: str is a pointer to a null-terminated string.
+effects: Converts all uppercase letters in the string str to lowercase.
 void printWordsData(const WordsData *data);//for debugging purposes and used once in beginning.
+requires: data is a pointer to a WordsData structure.
+effects: Prints the contents of the WordsData structure for debugging purposes.
 void capitalizeFirstChar(char *str);//helper for Find_Verify(capitalizing first letter in a arrray to mark it as visited).
+equires: str is a pointer to a null-terminated string.
+effects: Capitalizes the first character of the string str.
 
 /*
 #This function creates an array of 27 indixes(1 for each letter in alphabet).
@@ -46,7 +54,21 @@ case3=started with wrong letter.
 case4=win(the word exists and its last letter has no remaining words in the list)
 */
 int Find_Verify(WordsData *wordsData, char *word, char lastLetter, char requiredL);
+requires:
+wordsData is a pointer to a WordsData structure.
+word is a pointer to a null-terminated string.
+lastLetter is a character indicating the last letter of the previous word.
+requiredL is the required starting letter for the word.
+effects: Verifies if word is valid based on several criteria: uncapitalized (unused), starts with requiredL, and exists in wordsData. Returns an integer code representing different scenarios (0: word found and valid, 1: word found but already used, 2: word doesnt exist, 3: wrong starting letter, 4: win condition).
 int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]);
+requires:
+words is a pointer to a 3D array of characters.
+wordCount is an array of integers representing the count of words for each alphabet letter.
+effects: Creates a 2D array indicating the number of words ending in each alphabet letter. Returns a pointer to the 2D array.
 GameState createGameState(WordsData *wordsData);
+requires: wordsData is a pointer to a WordsData structure.
+effects: Creates and returns a GameState structure based on the given WordsData.
 void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
+requires: array is a 2D array of integers with dimensions defined by ALPHABET_SIZE.
+effects: Prints the 2D array array for debugging purposes.
 #endif // HELPERS_H
