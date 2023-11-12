@@ -8,9 +8,186 @@
 #include "botLogic.h"
 #include "utilities.h"
 
-
+char* findMatchingWord(WordsData *wordsData, MinimaxResult minimaxResult) {
+    int index = minimaxResult.firstLetter - 'a';  // Convert letter to index (assuming lowercase)
+    for (int i = 0; i < wordsData->word_count[index]; i++) {
+        char *currentWord = wordsData->words[index][i];
+        if (currentWord != NULL) {
+            int len = strlen(currentWord);
+            if (currentWord[len - 1] == minimaxResult.lastLetter) {
+                // Found a word that matches the criteria
+                return currentWord;
+            }
+        }
+    }
+    return NULL; // No matching word found
+}
 char* chooseWordWithMinimax(WordsData *wordsData, GameState *gameState) {
-    printf("we are here");
+    //printf("Running chooseWordWithMinimax...\n");
+    // Step 1: Run the Minimax algorithm to determine the best starting and ending letters
+    MinimaxResult minimaxResult = minimax(gameState, 1, true);
+    //printf("Minimax chose first letter: %c, last letter: %c, score: %d\n", minimaxResult.firstLetter, minimaxResult.lastLetter, minimaxResult.score);
+    
+    // Step 2: Use the Minimax result to find a matching word
+    char* chosenWord = findMatchingWord(wordsData, minimaxResult);
+    //printf("Matching word found: %s\n", chosenWord ? chosenWord : "None");
+    // Return the chosen word
+    return chosenWord; // Note: You might want to handle the case where no matching word is found
+}
 
-    return "nox"; // Caller must free this memory
+MinimaxResult minimax(GameState *gameState, int depth, bool isMaximizingPlayer) {
+        //printf("Minimax called with depth %d, isMaximizingPlayer: %d\n", depth, isMaximizingPlayer);
+
+    
+    MinimaxResult result;
+    result.firstLetter = '\0';
+    result.lastLetter = '\0';
+    result.score = isMaximizingPlayer ? INT_MIN : INT_MAX;
+
+    if (depth == 0 || isTerminalState(gameState)) {
+        result.score = evaluateGameState(gameState);
+        return result;
+    }
+    MinimaxResult* moves = generatePossibleMoves(gameState);
+    if (!moves) {
+        // Error handling or alternative approach
+        result.score = isMaximizingPlayer ? INT_MIN : INT_MAX;
+        return result;
+    }
+    for (int i = 0; moves[i].firstLetter != '\0' && moves[i].lastLetter != '\0'; i++) {
+        updateGameState(gameState, moves[i].firstLetter, moves[i].lastLetter);
+        MinimaxResult tempResult = minimax(gameState, depth - 1, !isMaximizingPlayer);
+        undoGameStateUpdate(gameState, moves[i].firstLetter, moves[i].lastLetter);
+
+        if (isMaximizingPlayer && tempResult.score > result.score) {
+            result.score = tempResult.score;
+            result.firstLetter = moves[i].firstLetter;
+            result.lastLetter = moves[i].lastLetter;
+        } else if (!isMaximizingPlayer && tempResult.score < result.score) {
+            result.score = tempResult.score;
+            result.firstLetter = moves[i].firstLetter;
+            result.lastLetter = moves[i].lastLetter;
+    }
+}
+    freeGeneratedMoves(moves);
+    return result;
+}
+int evaluateGameState(GameState *gameState) {
+    if (!gameState || gameState->lastLetterBefore < 'a' || gameState->lastLetterBefore > 'z') {//maybe
+        return 0;
+    }
+    int index = gameState->lastLetterBefore - 'a';
+    return MAX_WORDS_PER_LETTER - gameState->word_Count[index];
+}
+//Determines if the game state is a terminal state, i.e., the game is over or a certain condition is met (like no valid moves left).
+bool isTerminalState(GameState *gameState) {
+    // Get the index of the last letter used in the game
+    int index = gameState->lastLetterBefore - 'a';
+    //printf("nigger");
+    // Check if the array is valid and the index is within bounds
+    if (index < 0 || index >= ALPHABET_SIZE) {
+        return true; // This could also be handled differently based on your game's logic
+    }
+
+    // Check if there are no words available that start with this letter
+    if (gameState->word_Count[index] == 0) {
+        return true; // Terminal state reached
+    }
+    printf("%d",gameState->word_Count[index]);
+    return false; // More moves are possible
+}
+
+
+void updateGameState(GameState *gameState, char startingLetter, char endingLetter) {
+   // printf("Updating game state with starting letter: %c, ending letter: %c\n", startingLetter, endingLetter);
+    if (!gameState || startingLetter < 'a' || startingLetter > 'z' || endingLetter < 'a' || endingLetter > 'z') {
+        // Handle invalid input
+        return;
+    }
+
+    // Convert letters to array indices
+    int startIdx = startingLetter - 'a';
+    int endIdx = endingLetter - 'a';
+
+    // Decrement the word count for the starting letter
+    if (gameState->word_Count[startIdx] > 0) {
+        gameState->word_Count[startIdx]--;
+    }
+
+    // Update the wordsEndingIn array
+    if (gameState->wordsEndingIn[startIdx][endIdx] > 0) {
+        gameState->wordsEndingIn[startIdx][endIdx]--;
+    }
+
+    // Update the last letter for the next turn
+    gameState->lastLetterBefore = endingLetter;
+
+    // Additional updates to GameState can be made here if necessary
+}
+//Reverts changes made by updateGameState. This is crucial for backtracking in the Minimax algorithm.
+void undoGameStateUpdate(GameState *gameState, char startingLetter, char endingLetter) {
+    //printf("Undoing game state update for starting letter: %c, ending letter: %c\n", startingLetter, endingLetter);
+    if (!gameState || startingLetter < 'a' || startingLetter > 'z' || endingLetter < 'a' || endingLetter > 'z') {
+        // Handle invalid input
+        return;
+    }
+
+    // Convert letters to array indices
+    int startIdx = startingLetter - 'a';
+    int endIdx = endingLetter - 'a';
+
+    // Increment the word count for the starting letter
+    // This undoes the decrement done in updateGameState
+    gameState->word_Count[startIdx]++;
+
+    // Update the wordsEndingIn array
+    // This undoes the decrement done in updateGameState
+    gameState->wordsEndingIn[startIdx][endIdx]++;
+
+    // You might also need to restore the last letter before the move
+    // This depends on how you are tracking the sequence of moves in your game
+    // gameState->lastLetterBefore = <previous last letter>;
+}
+
+//Generates all possible moves (letter pairs in your case) from the current game state.
+MinimaxResult* generatePossibleMoves(GameState *gameState) {
+    if (!gameState) {
+        return NULL;
+    }
+
+    // Convert the last letter used to an index
+    int lastLetterIndex = gameState->lastLetterBefore - 'a';
+    if (lastLetterIndex < 0 || lastLetterIndex >= ALPHABET_SIZE) {
+        return NULL;  // Invalid last letter
+    }
+
+    // Allocate memory for the moves array
+    MinimaxResult* moves = malloc(ALPHABET_SIZE * sizeof(MinimaxResult)); // Only need ALPHABET_SIZE moves at most
+    if (!moves) {
+        return NULL;  // Memory allocation failure
+    }
+
+    int moveCount = 0;
+    for (int j = 0; j < ALPHABET_SIZE; j++) {
+        if (gameState->wordsEndingIn[lastLetterIndex][j] > 0) {
+            moves[moveCount].firstLetter = gameState->lastLetterBefore;
+            moves[moveCount].lastLetter = 'a' + j;
+            moveCount++;
+        }
+    }
+
+    // Set the sentinel value
+    moves[moveCount].firstLetter = '\0'; // Use '\0' as the sentinel value
+    moves[moveCount].lastLetter = '\0';
+
+    return moves;
+}
+
+
+//If generatePossibleMoves dynamically allocates memory for the moves, you'll need a function to free that memory.
+void freeGeneratedMoves(MinimaxResult *moves) {
+    //printf("Freeing generated moves...\n");
+    if (moves) {
+        free(moves);
+    }
 }

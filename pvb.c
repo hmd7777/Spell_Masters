@@ -71,21 +71,21 @@ void PlayerVsBot() {
     int validInput = 0;
 
     while (!validInput) {
-        printf("Choose the bot difficulty number: \n1-Zedong(easy)\n2-Stalin(medium)\n3-Hitler(hard)\n-");
+        printf("Choose the bot difficulty number: \n1-Bob(easy)\n2-Abdallah(medium)\n3-Abo Ubaida(hard)\n-");
         scanf("%99s", bot_difficulty);
-
+        Sleep(400);
         // Check if the input is one of the valid options
         if (strcmp(bot_difficulty, "1") == 0 || strcmp(bot_difficulty, "2") == 0 || strcmp(bot_difficulty, "3") == 0) {
             validInput = 1;
             if (strcmp(bot_difficulty, "1") == 0) strcpy(bot, "Bob");
-            if (strcmp(bot_difficulty, "2") == 0) strcpy(bot, "Hitler");
+            if (strcmp(bot_difficulty, "2") == 0) strcpy(bot, "Abdallah");
             if (strcmp(bot_difficulty, "3") == 0) strcpy(bot, "Abu Ubaida");
 
         } else {
             printf("Invalid input. Please enter '1', '2', or '3'.\n");
         }
     }
-
+    Sleep(400);
     printf("You chose: %s difficulty\n", bot_difficulty);
     
 
@@ -119,7 +119,8 @@ void PlayerVsBot() {
             if(!p1turn){
                 char *chosenword = chooseWordWithMinimax(&wordsData,&gameState);
                 strcpy(word, chosenword);
-                
+                Sleep(500);
+                printf("%s choses %S",bot,chosenword);
             
             Sleep(1000);
             }
@@ -144,8 +145,11 @@ void PlayerVsBot() {
         } else {
             printf("Perfect pick! You win.\n");
             break;
-}
+}       gameState.wordsEndingIn[Required][LastLetter]--;
         Required = LastLetter;
+        gameState.lastLetterBefore = LastLetter;
+        gameState.lastLetterBefore = Required;
+        
         p1turn=!p1turn;
         
     }
