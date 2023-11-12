@@ -48,6 +48,9 @@ void capitalizeFirstChar(char *str);
 #they are both stored in a struct.
 */
 WordsData createWordsArrayFromFile(const char *filename);
+//requires: filename is a string representing the name of a file.
+//effects: Creates a 3D array (WordsData) from words in the specified file, categorizing them by their starting letters. Returns the WordsData structure.
+WordsData createWordsArrayFromFile(const char *filename);
 //if a word is found our startegy is to capitalize it so if we find it again it will be capitalized which will indicate that it was already used.
 /*
 if a word is found our startegy is to capitalize it so if we find it again it will be capitalized which will indicate that it was already used.
@@ -70,11 +73,13 @@ int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]);
 //words is a pointer to a 3D array of characters.
 //wordCount is an array of integers representing the count of words for each alphabet letter.
 //effects: Creates a 2D array indicating the number of words ending in each alphabet letter. Returns a pointer to the 2D array.
-//GameState createGameState(WordsData *wordsData);
+int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]);
+GameState createGameState(WordsData *wordsData);
 //requires: wordsData is a pointer to a WordsData structure.
 //effects: Creates and returns a GameState structure based on the given WordsData.
-//void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
+GameState createGameState(WordsData *wordsData);
+void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
 //requires: array is a 2D array of integers with dimensions defined by ALPHABET_SIZE.
 //effects: Prints the 2D array array for debugging purposes.
-int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]);
+void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
 #endif // HELPERS_H
