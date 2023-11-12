@@ -4,6 +4,7 @@
 
 #define ALPHABET_SIZE 26
 #define MAX_WORD_LENGTH 25
+
 #include <stdbool.h>
 /*typedef struct {//stored together in a struct so parameter doesnt get crowded. and looks cleaner.
     char ***words;//3d array that categorizes words with their corresponding starting letters.
@@ -22,6 +23,11 @@ typedef struct {
     int **wordsEndingIn; 
     char lastLetterBefore;
 } GameState;
+typedef struct {
+    char firstLetter; // The first letter of the best move (starting letter)
+    char lastLetter;  // The last letter of the best move (ending letter)
+    int score;        // The score of the game state after making the best move
+} MinimaxResult;
 
 //makes sure a word is only letters since the array will be out of bounds if non letters are used.
 bool isOnlyLetters(const char *str);
@@ -77,9 +83,8 @@ int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]);
 GameState createGameState(WordsData *wordsData);
 //requires: wordsData is a pointer to a WordsData structure.
 //effects: Creates and returns a GameState structure based on the given WordsData.
-GameState createGameState(WordsData *wordsData);
-void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
+
 //requires: array is a 2D array of integers with dimensions defined by ALPHABET_SIZE.
 //effects: Prints the 2D array array for debugging purposes.
-void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]);
+void print2dArray(int **array);
 #endif // HELPERS_H

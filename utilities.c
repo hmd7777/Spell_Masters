@@ -154,12 +154,24 @@ if (sscanf(word, "%d", &numberOfWords) != 1) {
     data.words = words;
     return data;
 }
-void print2dArray(int array[ALPHABET_SIZE][ALPHABET_SIZE]) {
+void print2dArray(int **array) {
+    // Print top header (columns)
+    printf("   "); // Spacing for row header
+    for (char col = 'a'; col <= 'z'; col++) {
+        printf("%c ", col);
+    }
+    printf("\n");
+
+    // Print each row
     for (int i = 0; i < ALPHABET_SIZE; i++) {
+        // Print row header
+        printf("%c  ", 'a' + i);
+
+        // Print row data
         for (int j = 0; j < ALPHABET_SIZE; j++) {
             printf("%d ", array[i][j]);
         }
-        printf("\n"); // New line after each row
+        printf("\n");
     }
 }
 int** createWordsEndingInArray(char ***words, int wordCount[ALPHABET_SIZE]) {
