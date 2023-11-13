@@ -10,6 +10,13 @@
 
 #include "utilities.h"
 
+int myMax(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+int myMin(int a, int b) {
+    return (a < b) ? a : b;
+}
 // Implementation of the functions declared in helpers.h
 // ...
 bool isOnlyLetters(const char *str) {

@@ -4,153 +4,98 @@
 #include <ctype.h>
 #include <time.h>
 #include <stdbool.h>
-
+#include <windows.h>
 
 #include "botLogic.h"
 #include "utilities.h"
 // Include other necessary headers
 
-// Define test functions
-void testFindMatchingWord() {
+void TestPlayerVsBot() {
+    char player1[50] = "Player"; // Directly assign player name for testing
+    char bot[20] = "Bot"; // Directly assign bot name for testing
 
+    // Directly set bot difficulty for testing
+    char bot_difficulty[10] = "2"; // Example: Set to '2' for medium difficulty
+
+    printf("Testing PlayerVsBot with %s difficulty\n", bot_difficulty);
+
+    // Initialize wordsData, gameState and other variables needed for the battle
     WordsData wordsData = createWordsArrayFromFile("spells.txt");
-    MinimaxResult minimaxResult = { .firstLetter = 'a', .lastLetter = 'a' }; // Example test case
-    char *expectedWord = "alohomora"; // Expected result for this test case
-
-    char *result = findMatchingWord(&wordsData, minimaxResult);
-    printf("expected: %s\n",expectedWord);
-    printf("actual: %s\n",result);
-    if (strcmp(result, expectedWord) == 0) {
-        printf("Test findMatchingWord: PASS\n");
-    } else {
-        printf("Test findMatchingWord: FAIL\n");
+    for (int i = 0; i < 26; i++) {
+        wordsData.word_count_static[i] = wordsData.word_count[i];
     }
-}
-
-
-void testChooseWordWithMinimax() {
-    WordsData wordsData = createWordsArrayFromFile("spells.txt");
-    GameState gameState = createGameState(&wordsData);
-    gameState.lastLetterBefore = 'n';
-    char *expectedWord = "expectedWord"; // Change based on your expected outcome
-
-    char *result = chooseWordWithMinimax(&wordsData, &gameState);
-    printf("expected: %s\n",expectedWord);
-    printf("actual: %s\n",result);
-    if (strcmp(result, expectedWord) == 0) {
-        printf("Test chooseWordWithMinimax: PASS\n");
-    } else {
-        printf("Test chooseWordWithMinimax: FAIL\n");
-    }
-}
-
-void testIsTerminalState() {
-    WordsData wordsData = createWordsArrayFromFile("spells.txt");
-    GameState gameState = createGameState(&wordsData);
-    gameState.lastLetterBefore = 'h';
-    bool expected = true; // or false, depending on what you expect in this test case
-
-    bool result = isTerminalState(&gameState);
-    if (result == expected) {
-        printf("Test isTerminalState: PASS\n");
-    } else {
-        printf("Test isTerminalState: FAIL\n");
-    }
-}
-
-
-void testUpdateAndUndoGameState() {
-    WordsData wordsData = createWordsArrayFromFile("spells.txt");
     GameState gameState = createGameState(&wordsData);
 
-    char startingLetter = 'a'; // Example starting letter
-    char endingLetter = 'o';   // Example ending letter
+    // Directly set the initial turn (true for player, false for bot)
+    bool p1turn = true; // Example: Set true if player starts, false if bot starts
 
-    // Make a copy of relevant data for comparison
-    int originalWordCount[ALPHABET_SIZE];
-    memcpy(originalWordCount, gameState.word_Count, sizeof(originalWordCount));
+    char word[26];
+    int status;
+    char LastLetter;
+    char FirstLetter = ' ';
+    char *chosenPlayer;
+    // Start the battle
+    while(true){//start the battle
+        if (p1turn) chosenPlayer = player1;
+        else chosenPlayer = bot;
 
-    int originalWordsEndingIn[ALPHABET_SIZE][ALPHABET_SIZE];
-    memcpy(originalWordsEndingIn, gameState.wordsEndingIn, sizeof(originalWordsEndingIn));
-
-    // Apply update and undo operations
-    updateGameState(&gameState, startingLetter, endingLetter);
-    undoGameStateUpdate(&gameState, startingLetter, endingLetter);
-
-    // Check if gameState is reverted correctly
-    bool isRevertedCorrectly = true;
-    if (memcmp(originalWordCount, gameState.word_Count, sizeof(originalWordCount)) != 0) {
-        isRevertedCorrectly = false;
-    }
-    if (memcmp(originalWordsEndingIn, gameState.wordsEndingIn, sizeof(originalWordsEndingIn)) != 0) {
-        isRevertedCorrectly = false;
-    }
-
-    // Print test result
-    if (isRevertedCorrectly) {
-        printf("Test update and undo GameState: PASS\n");
-    } else {
-        printf("Test update and undo GameState: FAIL\n");
-    }
-}
-void printAllMoves(MinimaxResult* moves) {
-    if (!moves) {
-        printf("No moves to print.\n");
-        return;
-    }
-
-    printf("Generated Moves:\n");
-    for (int i = 0; moves[i].firstLetter != '\0' && moves[i].lastLetter != '\0'; i++) {
-        printf("Move %d: Start with '%c', End with '%c'\n", i + 1, moves[i].firstLetter, moves[i].lastLetter);
-    }
-}
-void testGeneratePossibleMoves() {
-    // Setup a specific game state for testing
-    WordsData wordsData = createWordsArrayFromFile("spells.txt");
-    GameState gameState = createGameState(&wordsData);
-    gameState.lastLetterBefore = 'n';
-    // Call the function to test
-    MinimaxResult* moves = generatePossibleMoves(&gameState);
-
-    // Check if moves are generated correctly
-    if (!moves) {
-        printf("generatePossibleMoves Test: FAIL (No moves generated)\n");
-        return;
-    }
-
-    bool isValid = true;
-    for (int i = 0; moves[i].firstLetter != '\0' && moves[i].lastLetter != '\0'; i++) {
-        int startIdx = moves[i].firstLetter - 'a';
-        int endIdx = moves[i].lastLetter - 'a';
-
-        // Check if the move is valid
-        if (gameState.wordsEndingIn[startIdx][endIdx] <= 0) {
-            isValid = false;
-            break;
+        do{
+            printf("%s choose a spell(only letters): \n",chosenPlayer);
+            if(!p1turn){
+                Sleep(2000);
+                char *chosenword = chooseWordWithMinimax(&wordsData, &gameState);
+                printf("\n");
+                printf("\n");
+            if (chosenword) {
+                strcpy(word, chosenword);
+                printf("%s chooses %s\n", bot, chosenword);
+            } else {
+                printf("No valid move for %s\n", bot);
+                break; // or handle this scenario appropriately
+            }
+            Sleep(1000);
+            }
+            else{
+            scanf("%25s",word);
+            toLowerCase(word);
+            Sleep(1000);
         }
+        }while (!isOnlyLetters(word));
+        LastLetter = word[strlen(word) - 1];
+        status = Find_Verify(&wordsData,  word,LastLetter, FirstLetter); // verify word
+        if (status == 0) {
+            printf("%s. Valid choice %s. \nNext turn:\n", word, chosenPlayer);
+        } else if (status == 1) {
+            printf("Oops, %s was already taken. Unlucky, %s.\n", word, chosenPlayer);
+            break;
+        } else if (status == 2) {
+            printf("This word doesn't exist. Better luck next time, %s.\n", chosenPlayer);
+            break;
+        } else if (status == 3) {
+            printf("Wrong starting letter (your word should have started with %c). Game over.\n", FirstLetter);
+            break;
+        } else {
+            printf("Perfect pick! You win.\n");
+            break;
+            }
+        char templetter = word[0];
+        FirstLetter = LastLetter;
+        gameState.wordsEndingIn[templetter - 'a'][LastLetter-'a']--;
+        gameState.lastLetterBefore = FirstLetter;
+        //print2dArray(gameState.wordsEndingIn);
+        p1turn=!p1turn;
+    }//print2dArray(gameState.wordsEndingIn);
+    if (status>=1 && status<=3){
+        if (p1turn) printf("Congratiolations %s!!.",bot);
+        else printf("Congratiolations %s!!.",player1);
     }
-
-    // Check for sentinel value at the end
-    if (moves[ALPHABET_SIZE * ALPHABET_SIZE].firstLetter != '\0' || moves[ALPHABET_SIZE * ALPHABET_SIZE].lastLetter != '\0') {
-        isValid = false;
+    else{
+        if (p1turn) printf("Congratiolations %s!!.",player1);
+        else printf("Congratiolations %s!!.",bot);
     }
-
-    if (isValid) {
-        printf("generatePossibleMoves Test: PASS\n");
-    } else {
-        printf("generatePossibleMoves Test: FAIL (Invalid moves generated)\n");
-    }
-    printAllMoves(moves);
-    // Free allocated memory
-    free(moves);
 }
-
 
 int main() {
-    //testFindMatchingWord();
-    //testChooseWordWithMinimax();
-    //testIsTerminalState();
-    //testUpdateAndUndoGameState();
-    testGeneratePossibleMoves();
+    TestPlayerVsBot();
     return 0;
 }

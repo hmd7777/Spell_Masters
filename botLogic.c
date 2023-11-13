@@ -8,11 +8,13 @@
 #include "botLogic.h"
 #include "utilities.h"
 
+#define WINNING_SCORE 50
+
 char* findMatchingWord(WordsData *wordsData, MinimaxResult minimaxResult) {
     int index = minimaxResult.firstLetter - 'a';  // Convert letter to index (assuming lowercase)
     for (int i = 0; i < wordsData->word_count[index]; i++) {
         char *currentWord = wordsData->words[index][i];
-        if (currentWord != NULL) {
+        if (currentWord != NULL && islower(currentWord[0])) {  // Check if the first letter is lowercase
             int len = strlen(currentWord);
             if (currentWord[len - 1] == minimaxResult.lastLetter) {
                 // Found a word that matches the criteria
@@ -22,23 +24,67 @@ char* findMatchingWord(WordsData *wordsData, MinimaxResult minimaxResult) {
     }
     return NULL; // No matching word found
 }
-char* chooseWordWithMinimax(WordsData *wordsData, GameState *gameState) {
+char* chooseInitialWordWithMinimax(WordsData *wordsData, GameState *gameState, int depth) {
+    int bestScore = INT_MIN;
+    char *bestWord = NULL;
+    int alpha = INT_MIN;
+    int beta = INT_MAX;
+
+    // Iterate over all words
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        for (int j = 0; j < wordsData->word_count[i]; j++) {
+            char *currentWord = wordsData->words[i][j];
+
+            // Check if the word is valid (not used before)
+            if (isValidWord(currentWord)) {
+                // Temporarily update the game state
+                char lastLetter = currentWord[strlen(currentWord) - 1];
+                updateGameState(gameState, currentWord[0], lastLetter);
+
+                // Perform Minimax with Alpha-Beta pruning
+                MinimaxResult result = minimax(gameState, depth, false, alpha, beta);
+
+                // Undo the update
+                undoGameStateUpdate(gameState, currentWord[0], lastLetter);
+
+                // Update the best score and word if necessary
+                if (result.score > bestScore) {
+                    bestScore = result.score;
+                    bestWord = currentWord;
+                    alpha = result.score; // Update alpha
+                }
+            }
+        }
+    }
+
+    // Return the best starting word found
+    return bestWord; // Note: Ensure this word is properly handled or duplicated if necessary.
+}
+
+bool isValidWord(char *word) {
+    // Assuming the word is invalid if its first letter is capitalized
+    return islower(word[0]);
+}
+
+char* chooseWordWithMinimax(WordsData *wordsData, GameState *gameState,char* difficulty) {
+    int num = atoi(difficulty);
+    num = 4-num;
     //printf("Running chooseWordWithMinimax...\n");
     // Step 1: Run the Minimax algorithm to determine the best starting and ending letters
-    MinimaxResult minimaxResult = minimax(gameState, 1, true);
-    //printf("Minimax chose first letter: %c, last letter: %c, score: %d\n", minimaxResult.firstLetter, minimaxResult.lastLetter, minimaxResult.score);
+    if(gameState->lastLetterBefore == ' '){
+        return chooseInitialWordWithMinimax(wordsData,gameState,num);
+    }
+    MinimaxResult result = minimax(gameState, num, true, INT_MIN, INT_MAX);
+
     
     // Step 2: Use the Minimax result to find a matching word
-    char* chosenWord = findMatchingWord(wordsData, minimaxResult);
+    char* chosenWord = findMatchingWord(wordsData, result);
     //printf("Matching word found: %s\n", chosenWord ? chosenWord : "None");
     // Return the chosen word
     return chosenWord; // Note: You might want to handle the case where no matching word is found
 }
 
-MinimaxResult minimax(GameState *gameState, int depth, bool isMaximizingPlayer) {
-        //printf("Minimax called with depth %d, isMaximizingPlayer: %d\n", depth, isMaximizingPlayer);
-
-    
+MinimaxResult minimax(GameState *gameState, int depth, bool isMaximizingPlayer, int alpha, int beta) {
     MinimaxResult result;
     result.firstLetter = '\0';
     result.lastLetter = '\0';
@@ -48,37 +94,52 @@ MinimaxResult minimax(GameState *gameState, int depth, bool isMaximizingPlayer) 
         result.score = evaluateGameState(gameState);
         return result;
     }
+
     MinimaxResult* moves = generatePossibleMoves(gameState);
     if (!moves) {
-        // Error handling or alternative approach
         result.score = isMaximizingPlayer ? INT_MIN : INT_MAX;
         return result;
     }
+
     for (int i = 0; moves[i].firstLetter != '\0' && moves[i].lastLetter != '\0'; i++) {
         updateGameState(gameState, moves[i].firstLetter, moves[i].lastLetter);
-        MinimaxResult tempResult = minimax(gameState, depth - 1, !isMaximizingPlayer);
+        MinimaxResult tempResult = minimax(gameState, depth - 1, !isMaximizingPlayer, alpha, beta);
         undoGameStateUpdate(gameState, moves[i].firstLetter, moves[i].lastLetter);
 
-        if (isMaximizingPlayer && tempResult.score > result.score) {
-            result.score = tempResult.score;
-            result.firstLetter = moves[i].firstLetter;
-            result.lastLetter = moves[i].lastLetter;
-        } else if (!isMaximizingPlayer && tempResult.score < result.score) {
-            result.score = tempResult.score;
-            result.firstLetter = moves[i].firstLetter;
-            result.lastLetter = moves[i].lastLetter;
+        if (isMaximizingPlayer) {
+            if (tempResult.score > result.score) {
+                result.score = tempResult.score;
+                result.firstLetter = moves[i].firstLetter;
+                result.lastLetter = moves[i].lastLetter;
+            }
+            alpha = myMax(alpha, result.score);
+        } else {
+            if (tempResult.score < result.score) {
+                result.score = tempResult.score;
+                result.firstLetter = moves[i].firstLetter;
+                result.lastLetter = moves[i].lastLetter;
+            }
+            beta = myMin(beta, result.score);
+        }
+
+        // Alpha-beta pruning condition
+        if (beta <= alpha) {
+            break;
+        }
     }
-}
+
     freeGeneratedMoves(moves);
     return result;
 }
+
 int evaluateGameState(GameState *gameState) {
     if (!gameState || gameState->lastLetterBefore < 'a' || gameState->lastLetterBefore > 'z') {//maybe
         return 0;
     }
     int index = gameState->lastLetterBefore - 'a';
-    return MAX_WORDS_PER_LETTER - gameState->word_Count[index];
+    return WINNING_SCORE -gameState->word_Count[index];
 }
+
 //Determines if the game state is a terminal state, i.e., the game is over or a certain condition is met (like no valid moves left).
 bool isTerminalState(GameState *gameState) {
     // Get the index of the last letter used in the game
@@ -93,7 +154,6 @@ bool isTerminalState(GameState *gameState) {
     if (gameState->word_Count[index] == 0) {
         return true; // Terminal state reached
     }
-    printf("%d",gameState->word_Count[index]);
     return false; // More moves are possible
 }
 

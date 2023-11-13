@@ -107,7 +107,7 @@ void PlayerVsBot() {
     int status;
     char *chosenPlayer;
     char LastLetter;
-    char Required = ' ';
+    char FirstLetter = ' ';
     GameState gameState = createGameState(&wordsData);
 
     while(true){//start the battle
@@ -117,22 +117,28 @@ void PlayerVsBot() {
         do{
             printf("%s choose a spell(only letters): ",chosenPlayer);
             if(!p1turn){
-                char *chosenword = chooseWordWithMinimax(&wordsData,&gameState);
+                Sleep(1000);
+                char *chosenword = chooseWordWithMinimax(&wordsData, &gameState,bot_difficulty);
+            if (chosenword) {
                 strcpy(word, chosenword);
-                Sleep(500);
-                printf("%s choses %S",bot,chosenword);
-            
+                printf("%s chooses %s\n", bot, chosenword);
+            } else {
+                printf("No valid move for %s\n", bot);
+                break; // or handle this scenario appropriately
+            }
             Sleep(1000);
             }
             else{
             scanf("%25s",word);
             toLowerCase(word);
+            Sleep(1000);
         }
         }while (!isOnlyLetters(word));
         LastLetter = word[strlen(word) - 1];
-        status = Find_Verify(&wordsData,  word,LastLetter, Required);
+        status = Find_Verify(&wordsData,  word,LastLetter, FirstLetter); // verify word
         if (status == 0) {
             printf("%s. Valid choice %s. \nNext turn:\n", word, chosenPlayer);
+            printf("1");
         } else if (status == 1) {
             printf("Oops, %s was already taken. Unlucky, %s.\n", word, chosenPlayer);
             break;
@@ -140,19 +146,18 @@ void PlayerVsBot() {
             printf("This word doesn't exist. Better luck next time, %s.\n", chosenPlayer);
             break;
         } else if (status == 3) {
-            printf("Wrong starting letter (your word should have started with %c). Game over.\n", Required);
+            printf("Wrong starting letter (your word should have started with %c). Game over.\n", FirstLetter);
             break;
         } else {
-            printf("Perfect pick! You win.\n");
+            printf("Perfect pick! %s win.\n",chosenPlayer);
             break;
-}       gameState.wordsEndingIn[Required][LastLetter]--;
-        Required = LastLetter;
-        gameState.lastLetterBefore = LastLetter;
-        gameState.lastLetterBefore = Required;
+            }
+        FirstLetter = LastLetter;
+        gameState.wordsEndingIn[FirstLetter- 'a'][LastLetter-'a']--;
+        gameState.lastLetterBefore = FirstLetter;
         
         p1turn=!p1turn;
-        
-    }
+    }//print2dArray(gameState.wordsEndingIn);
     if (status>=1 && status<=3){
         if (p1turn) printf("Congratiolations %s!!.",bot);
         else printf("Congratiolations %s!!.",player1);
@@ -161,5 +166,4 @@ void PlayerVsBot() {
         if (p1turn) printf("Congratiolations %s!!.",player1);
         else printf("Congratiolations %s!!.",bot);
     }
-    
 }

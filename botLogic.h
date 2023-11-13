@@ -8,13 +8,15 @@
 
 #include "utilities.h"
 
-
+bool isValidWord(char *word);
+char* chooseInitialWordWithMinimax(WordsData *wordsData, GameState *gameState,int diff);
 // Function prototypes
 char* findMatchingWord(WordsData *wordsData, MinimaxResult minimaxResult);
-char* chooseWordWithMinimax(WordsData *wordsdata, GameState *gameState);
+
+char* chooseWordWithMinimax(WordsData *wordsdata, GameState *gameState,char* difficulty);
 
 //This is the core of the Minimax algorithm. It simulates all possible moves from the current game state and evaluates them recursively.
-MinimaxResult minimax(GameState *gameState, int depth, bool isMaximizingPlayer);
+MinimaxResult minimax(GameState *gameState, int depth, bool isMaximizingPlayer, int min, int max);
 
 //This function evaluates the game state from the perspective of the player. It returns a score based on how favorable the game state is.
 int evaluateGameState(GameState *gameState);
