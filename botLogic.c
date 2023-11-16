@@ -144,7 +144,6 @@ int evaluateGameState(GameState *gameState) {
 bool isTerminalState(GameState *gameState) {
     // Get the index of the last letter used in the game
     int index = gameState->lastLetterBefore - 'a';
-    //printf("nigger");
     // Check if the array is valid and the index is within bounds
     if (index < 0 || index >= ALPHABET_SIZE) {
         return true; // This could also be handled differently based on your game's logic
