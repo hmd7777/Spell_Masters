@@ -146,7 +146,7 @@ bool isTerminalState(GameState *gameState) {
     int index = gameState->lastLetterBefore - 'a';
     // Check if the array is valid and the index is within bounds
     if (index < 0 || index >= ALPHABET_SIZE) {
-        return true; // This could also be handled differently based on your game's logic
+        return true; 
     }
 
     // Check if there are no words available that start with this letter
