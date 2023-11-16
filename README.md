@@ -1,7 +1,10 @@
 # Spell Masters Game
 
 ## Introduction
-Spell Masters is an interactive word-based game where players compete against a bot in a challenging spell duel. The game leverages a Minimax algorithm with Alpha-Beta pruning to create a smart and strategic gameplay experience. 
+Spell Masters is an interactive word-based, turn-based game where players compete against each other or a bot in a challenging spell duel. 
+
+## Rules 
+1 Player must chose a word from a given list, and the other  player must pick a new word starting with the last letter of the previously picked word. If a player picks a used or non available word, the other player wins. If a player picks a word where its last letter has 0 words starting with it, that player wins.
 
 ## Features
 - Player vs. Bot gameplay.
